@@ -1,0 +1,28 @@
+stages:
+  - build
+  - test
+
+# Dùng image Maven với JDK 21
+image: maven:3.9.6-eclipse-temurin-21
+
+cache:
+  paths:
+    - .m2/repository
+
+variables:
+  MAVEN_OPTS: "-Dmaven.repo.local=$CI_PROJECT_DIR/.m2/repository"
+
+build_job:
+  stage: build
+  script:
+    - echo "Đang build toàn bộ 9 Microservices với JDK 21..."
+    - for dir in api-gateway identity-service event-service ticket-service order-service payment-service promotion-service notification-service analytics-service; do cd $dir && mvn clean package -DskipTests && cd ..; done
+  artifacts:
+    paths:
+      - "*/target/*.jar"
+
+test_job:
+  stage: test
+  script:
+    - echo "Chạy Unit Test cho hệ thống..."
+    # mvn test

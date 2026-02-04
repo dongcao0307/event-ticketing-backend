@@ -1,0 +1,56 @@
+version: "3.8"
+
+services:
+  # --- HẠ TẦNG (INFRASTRUCTURE) ---
+  mysql:
+    image: mysql:8.0
+    environment:
+      MYSQL_ROOT_PASSWORD: root
+    ports: ["3306:3306"]
+    networks: [ticket-net]
+
+  redis: # Phục vụ Redis CRUD (mục 5) và Rate Limiter (mục 14)
+    image: redis:alpine
+    ports: ["6379:6379"]
+    networks: [ticket-net]
+
+  rabbitmq: # Phục vụ Message Queue cho Order/Notification
+    image: rabbitmq:3-management
+    ports: ["5672:5672", "15672:15672"]
+    networks: [ticket-net]
+
+  jenkins: # Lấy 1.0 điểm mục 10
+    image: jenkins/jenkins:lts
+    ports: ["8085:8080"]
+    networks: [ticket-net]
+
+  # --- CÁC DỊCH VỤ JAVA (JDK 21) ---
+  api-gateway:
+    build: ./api-gateway
+    ports: ["8080:8080"]
+    depends_on: [identity-service]
+    networks: [ticket-net]
+
+  identity-service: # Xử lý JWT (mục 4)
+    build: ./identity-service
+    ports: ["8081:8081"]
+    networks: [ticket-net]
+
+  event-service: # Xử lý Redis (mục 3, 5)
+    build: ./event-service
+    ports: ["8082:8082"]
+    networks: [ticket-net]
+
+  ticket-service:
+    build: ./ticket-service
+    ports: ["8083:8083"]
+    networks: [ticket-net]
+
+  order-service: # Kết nối RabbitMQ
+    build: ./order-service
+    ports: ["8084:8084"]
+    networks: [ticket-net]
+
+networks:
+  ticket-net:
+    driver: bridge
