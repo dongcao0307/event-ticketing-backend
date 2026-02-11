@@ -54,4 +54,10 @@ cd EVENT-TICKETING-PLATFORM
 
 # 2. Build và Run (Tự động tải DB, Redis, RabbitMQ và build Java app)
 docker-compose up --build
+Bước 2: Kiểm tra trạng thái
+API Documentation (Swagger): http://localhost:8080/swagger-ui.html
+
+RabbitMQ Dashboard: http://localhost:15672 (User/Pass: guest/guest)
+
+GitLab Pipeline: Truy cập mục Build > Pipelines để xem minh chứng CI/CD.
 ```
